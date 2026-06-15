@@ -1,0 +1,53 @@
+name: Pull Docker Image from JFrog Artifactory
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_username:
+        description: 'Docker Username'
+        required: true
+        type: string
+      docker_password:
+        description: 'Docker Password'
+        required: true
+        type: string
+      docker_url:
+        description: 'Docker URL (Registry Host, e.g., company.jfrog.io)'
+        required: true
+        type: string
+      docker_repo:
+        description: 'Docker Repo (Repository Namespace)'
+        required: true
+        type: string
+      docker_image:
+        description: 'Docker Image (Name and tag, e.g., my-app:latest)'
+        required: true
+        type: string
+      jfrog_url:
+        description: 'JFrog URL (Base Artifactory URL, e.g., https://company.jfrog.io)'
+        required: true
+        type: string
+
+jobs:
+  pull-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Log in to Docker Registry on JFrog
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ github.event.inputs.docker_url }}
+          username: ${{ github.event.inputs.docker_username }}
+          password: ${{ github.event.inputs.docker_password }}
+
+      # Step 2: Pull the Docker Image from JFrog
+      - name: Pull Docker Image
+        run: |
+          echo "JFrog URL: ${{ github.event.inputs.jfrog_url }}"
+          echo "Docker Registry URL: ${{ github.event.inputs.docker_url }}"
+          echo "Docker Repository: ${{ github.event.inputs.docker_repo }}"
+          echo "Docker Image: ${{ github.event.inputs.docker_image }}"
+          
+          # Pull the image
+          docker pull "${{ github.event.inputs.docker_url }}/${{ github.event.inputs.docker_repo }}/${{ github.event.inputs.docker_image }}"
